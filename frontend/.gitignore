@@ -7,18 +7,43 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+dist-ssr/
+build/
+
+# System files
 *.local
+.DS_Store
+Thumbs.db
 
 # Editor directories and files
-.vscode/*
+.vscode/
 !.vscode/extensions.json
-.idea
-.DS_Store
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# Lock files
+*.lock
+
+# Docker-specific files
+*.dockerignore
+.env
+
+# Backend build outputs
+backend/bin/
+backend/obj/
+
+# TypeScript-specific files
+*.tsbuildinfo
+
+# Temporary files
+*.tmp
+*.temp
