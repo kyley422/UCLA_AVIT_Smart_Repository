@@ -1,0 +1,228 @@
+@import url('https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap');
+
+.app-container {
+    display: flex;
+    width: 100vw;
+    flex-direction: column;
+    height: 100vh;
+    font-family: "Jost", serif;
+  }
+  
+  /* Header */
+  .app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.4rem 1rem;
+    background-color: #f4f4f4;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .header-left{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0;
+    img {
+        height: 50px;
+        width: 235px;
+        object-fit: contain;
+    }
+  }
+  
+  .last-updated {
+    font-size: 0.85rem;
+    color: #666;
+  }
+  
+  .header-center {
+    flex: 1;
+    width: 1000px;
+    margin: 0 1rem;
+  }
+  
+  .search-input {
+    width: 80%;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 15px;
+  }
+  
+  .header-right {
+    display: flex;
+    align-items: center;
+    h3 {
+      margin: 0;
+    }
+    h5 {
+      margin: 0;
+      color: #666;
+    }
+  }
+  
+  .profile-section {
+    margin-left: 1rem;
+    font-size: 0.9rem;
+    color: #333;
+  }
+  
+  /* Main Content */
+  .main-content {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+  
+  /* Side Filter */
+  .side-filter {
+    width: 220px;
+    padding: 1rem;
+    border-right: 1px solid #ddd;
+    overflow-y: auto;
+    background-color: #fafafa;
+    h2 {
+      text-align: center;
+      margin: 0.5rem;
+    }
+  }
+  
+  .filter-group {
+    margin-bottom: 1rem;
+  }
+  
+  .filter-group h5 {
+    text-align: center;
+    margin: 0.5rem 0;
+  }
+  
+  .filter-group label {
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+  
+  /* Updates Section */
+  .updates-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    overflow-y: auto;
+    .updates-header {
+      display: flex;
+      flex-direction: row;
+    }
+  }
+  
+  .tabs {
+    margin-bottom: 1rem;
+  }
+  
+  .tabs button {
+    margin-right: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: #eee;
+    border: 1px solid #ccc;
+    cursor: pointer;
+  }
+  
+  .tabs button.active {
+    background-color: #fff;
+    border-bottom: 2px solid #007fff;
+    font-weight: bold;
+  }
+  
+  .push-all-buttons {
+    margin-bottom: 1rem;
+  }
+  
+  .push-all-buttons button {
+    margin-right: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+  }
+  
+  .push-critical {
+    background-color: #e53935;
+  }
+  
+  .push-major {
+    background-color: #fb8c00;
+  }
+  
+  .push-minor {
+    background-color: #3949ab;
+  }
+  
+  .push-all {
+    background-color: #43a047;
+  }
+  
+  /* Tables */
+  .updates-table-container {
+    margin-bottom: 2rem;
+  }
+  
+  .updates-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0.5rem;
+    background-color: #fff;
+  }
+  
+  .updates-table thead {
+    background-color: #f5f5f5;
+  }
+  
+  .updates-table th,
+  .updates-table td {
+    padding: 0.75rem;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .push-button {
+    background-color: #007fff;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+  }
+
+  /* styles.css or a similar stylesheet */
+
+/* Filter group container */
+.filter-group {
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 0.5rem;
+}
+
+/* Header row for each group (the clickable area) */
+.filter-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  height: 30px;
+}
+
+/* Optional: add an arrow or +/– icon */
+.toggle-icon {
+  font-size: 1.2rem;
+  color: #666;
+}
+
+/* Content that holds the checkbox list */
+.filter-group-content {
+  margin-top: 0.5rem;
+  padding-left: 0.5rem;
+}
+
+/* Each filter item (checkbox + label) */
+.filter-item {
+  display: block;
+  margin: 0.25rem 0;
+}
