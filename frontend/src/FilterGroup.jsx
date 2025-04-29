@@ -1,31 +1,37 @@
-// FilterGroup.js
-import React, { useState } from "react";
-import "./styles.css";
+import React from "react";
 
-function FilterGroup({ title, items }) {
-  // Whether the dropdown is expanded
-  const [open, setOpen] = useState(true);
+const FilterGroup = ({ title, items, filterKey, selectedFilters, onFilterChange }) => {
+  const handleCheckboxChange = (e) => {
+    const { value, checked } = e.target;
+    let newSelected;
+    if (checked) {
+      newSelected = [...selectedFilters, value];
+    } else {
+      newSelected = selectedFilters.filter((item) => item !== value);
+    }
+    onFilterChange(newSelected);
+  };
 
   return (
     <div className="filter-group">
-      {/* Header with clickable area to open/close */}
-      <div className="filter-group-header" onClick={() => setOpen(!open)}>
-        <h4>{title}</h4>
-        <span className="toggle-icon">{open ? "−" : "+"}</span>
-      </div>
-
-      {/* Only render checkbox list if open is true */}
-      {open && (
-        <div className="filter-group-content">
-          {items.map((item) => (
-            <label key={item} className="filter-item">
-              <input type="checkbox" /> {item}
+      <h3>{title}</h3>
+      <ul>
+        {items.map((item, index) => (
+          <li key={index}>
+            <label>
+              <input
+                type="checkbox"
+                value={item}
+                checked={selectedFilters.includes(item)}
+                onChange={handleCheckboxChange}
+              />
+              {item}
             </label>
-          ))}
-        </div>
-      )}
+          </li>
+        ))}
+      </ul>
     </div>
   );
-}
+};
 
 export default FilterGroup;

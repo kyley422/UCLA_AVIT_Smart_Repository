@@ -1,95 +1,50 @@
 import React, { useState } from "react";
 import "./styles.css";
 import FilterGroup from "./FilterGroup";
+import updatesData from "./updatesData.json";
 
 function App() {
   const [activeTab, setActiveTab] = useState("pending");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedFilters, setSelectedFilters] = useState({
+    brand: [],
+    deviceType: [],
+    location: []
+  });
 
-  // Sample data for demonstration
-  const criticalUpdates = [
-    {
-      date: "08/24/2024",
-      brand: "Denon",
-      model: "AVR-S750H",
-      version: "5.00",
-      description: "HDMI 2.1 / 8K Compatibility Fixes",
-      devicesAffected: 5,
-      size: "512 MB"
-    },
-    {
-      date: "09/16/2024",
-      brand: "Marantz",
-      model: "SR5015",
-      version: "6.02",
-      description: "HDMI 2.1 Chipset Update",
-      devicesAffected: 20,
-      size: "20 KB"
-    },
-    {
-      date: "10/06/2024",
-      brand: "Yamaha",
-      model: "RX-V4A",
-      version: "2.2",
-      description: "Network Security & System Stability",
-      devicesAffected: 16,
-      size: "4 MB"
-    },
-    {
-      date: "11/28/2024",
-      brand: "Onkyo",
-      model: "TX-NR696",
-      version: "11.1",
-      description: "Works with Sonos / Chromecast",
-      devicesAffected: 12,
-      size: "2 MB"
-    },
-    {
-      date: "12/25/2024",
-      brand: "Pioneer",
-      model: "VSX-934",
-      version: "0.7",
-      description: "MCACC Pro Calibration Updates",
-      devicesAffected: 3,
-      size: "50 MB"
-    },
-    {
-      date: "01/01/2025",
-      brand: "Sony",
-      model: "STR-DH790",
-      version: "9.5",
-      description: "Firmware to Support Latest Audio Formats",
-      devicesAffected: 2,
-      size: "100 MB"
-    }
-  ];
+  const { criticalUpdates, majorUpdates, minorUpdates } = updatesData;
 
-  const majorUpdates = [
-    // Same structure, different data
-    {
-      date: "08/24/2024",
-      brand: "Denon",
-      model: "AVR-S750H",
-      version: "5.00",
-      description: "HDMI 2.1 / 8K Compatibility Fixes",
-      devicesAffected: 5,
-      size: "512 MB"
-    },
-    {
-      date: "09/16/2024",
-      brand: "Marantz",
-      model: "SR5015",
-      version: "6.02",
-      description: "HDMI 2.1 Chipset Update",
-      devicesAffected: 20,
-      size: "20 KB"
-    },
-    // ...
-  ];
+  // Filter updates based on search query and selected filter options
+  const filterUpdates = (updates) => {
+    return updates.filter((item) => {
+      // Search bar filtering (case-insensitive, checks brand, model, and description)
+      if (searchQuery.trim() !== "") {
+        const query = searchQuery.trim().toLowerCase();
+        const matchesSearch =
+          (item.brand && item.brand.toLowerCase().includes(query)) ||
+          (item.model && item.model.toLowerCase().includes(query)) ||
+          (item.description && item.description.toLowerCase().includes(query));
+        if (!matchesSearch) {
+          return false;
+        }
+      }
+      // Filter by Brand
+      if (selectedFilters.brand.length > 0 && item.brand && !selectedFilters.brand.includes(item.brand)) {
+        return false;
+      }
+      // Filter by Device Type
+      if (selectedFilters.deviceType.length > 0 && item.deviceType && !selectedFilters.deviceType.includes(item.deviceType)) {
+        return false;
+      }
+      // Filter by Location
+      if (selectedFilters.location.length > 0 && item.location && !selectedFilters.location.includes(item.location)) {
+        return false;
+      }
+      return true;
+    });
+  };
 
-  const minorUpdates = [
-    // Similar structure...
-  ];
-
+  // Renders a table for the provided updates data with a title header
   const renderUpdatesTable = (title, data) => (
     <div className="updates-table-container">
       <h3>{title}</h3>
@@ -126,21 +81,28 @@ function App() {
     </div>
   );
 
-  // Depending on which tab is active, render different sections
+  // Render updates content based on active tab and filtered data
   const renderTabContent = () => {
     if (activeTab === "pending") {
       return (
         <>
-          {/* Pending tab content */}
-          {renderUpdatesTable(`Critical Updates (${criticalUpdates.length} Pending)`, criticalUpdates)}
-          {renderUpdatesTable(`Major Updates (${majorUpdates.length} Pending)`, majorUpdates)}
-          {/* You could similarly render Minor Updates here */}
+          {renderUpdatesTable(
+            `Critical Updates (${filterUpdates(criticalUpdates).length} Pending)`,
+            filterUpdates(criticalUpdates)
+          )}
+          {renderUpdatesTable(
+            `Major Updates (${filterUpdates(majorUpdates).length} Pending)`,
+            filterUpdates(majorUpdates)
+          )}
+          {renderUpdatesTable(
+            `Minor Updates (${filterUpdates(minorUpdates).length} Pending)`,
+            filterUpdates(minorUpdates)
+          )}
         </>
       );
     } else if (activeTab === "completed") {
       return <div>Completed Updates will be listed here...</div>;
     }
-    // ... additional tabs if needed
     return null;
   };
 
@@ -149,7 +111,10 @@ function App() {
       {/* Header */}
       <header className="app-header">
         <div className="header-left">
-          <img src="https://logos-world.net/wp-content/uploads/2021/11/University-of-California-Los-Angeles-UCLA-Emblem.png" alt="UCLA Logo" />
+          <img
+            src="https://logos-world.net/wp-content/uploads/2021/11/University-of-California-Los-Angeles-UCLA-Emblem.png"
+            alt="UCLA Logo"
+          />
           <span>UCLA AV/IT Services</span>
         </div>
         <div className="header-center">
@@ -157,11 +122,12 @@ function App() {
             type="text"
             placeholder="Search..."
             className="search-input"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
         <div className="header-right">
           <div className="profile-section">
-            {/* Could place a user avatar icon here */}
             <h3>IT Administrator</h3>
             <h5>Last Updated: 00:00 PST 01/01/2025</h5>
           </div>
@@ -173,27 +139,38 @@ function App() {
         {/* Side Filter Panel */}
         <aside className="side-filter">
           <h2>Filter</h2>
-
           <FilterGroup
             title="Brand"
+            filterKey="brand"
             items={["Denon", "Marantz", "Onkyo", "Pioneer", "Yamaha", "Sony"]}
+            selectedFilters={selectedFilters.brand}
+            onFilterChange={(selected) =>
+              setSelectedFilters((prev) => ({ ...prev, brand: selected }))
+            }
           />
-
           <FilterGroup
             title="Device Type"
+            filterKey="deviceType"
             items={["Amplifier", "Projector", "Receiver", "Speaker"]}
+            selectedFilters={selectedFilters.deviceType}
+            onFilterChange={(selected) =>
+              setSelectedFilters((prev) => ({ ...prev, deviceType: selected }))
+            }
           />
-
           <FilterGroup
             title="Location"
+            filterKey="location"
             items={["Boelter Hall", "Dining Halls", "Luskin Center", "The Hill"]}
+            selectedFilters={selectedFilters.location}
+            onFilterChange={(selected) =>
+              setSelectedFilters((prev) => ({ ...prev, location: selected }))
+            }
           />
         </aside>
 
         {/* Updates Section */}
         <section className="updates-section">
           <section className="updates-header">
-            {/* Tabs */}
             <div className="tabs">
               <button
                 className={activeTab === "pending" ? "active" : ""}
@@ -208,20 +185,16 @@ function App() {
                 Completed
               </button>
             </div>
-
-            {/* Action Buttons */}
             {activeTab === "pending" && (
               <div className="push-all-buttons">
-                <button className="push-critical">Downlad Critical (48)</button>
+                <button className="push-critical">Download Critical (48)</button>
                 <button className="push-major">Download Major (24)</button>
                 <button className="push-minor">Download Minor (152)</button>
                 <button className="push-all">Download All</button>
               </div>
             )}
-            </section>
-
-            {/* Conditionally Render Table/Content */}
-            <div className="updates-table-wrapper">{renderTabContent()}</div>
+          </section>
+          <div className="updates-table-wrapper">{renderTabContent()}</div>
         </section>
       </div>
     </div>
