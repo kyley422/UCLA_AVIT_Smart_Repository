@@ -1,9 +1,21 @@
 using MongoDB.Driver;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddOpenApi();
 builder.Services.AddControllers();
+
+// Add CORS policy
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173") // Replace with your frontend's URL
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 
 // Configure MongoDB connection
 var mongoConnectionString = builder.Configuration.GetConnectionString("MongoDB") 
@@ -14,7 +26,10 @@ var devicesCollection = database.GetCollection<AVDevice>("Devices");
 
 var app = builder.Build();
 app.MapControllers();
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
+
+// Use CORS
+app.UseCors("AllowFrontend");
 
 // If in Development, map OpenAPI
 if (app.Environment.IsDevelopment())
@@ -33,9 +48,14 @@ app.Run();
 
 record AVDevice(
     MongoDB.Bson.ObjectId? _id,
-    string? Manufacturer, 
-    string? Model, 
-    string? CurrentFirmwareVersion, 
-    string? UpdateFirmwareVersion, 
-    string? Severity
+    string? date,
+    string? manufacturer, 
+    string? model, 
+    string? updateFirmwareVersion, 
+    string? description, 
+    int? devicesAffected, 
+    string? size,
+    string? severity,
+    string? deviceType,
+    string? location
 );

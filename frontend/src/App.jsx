@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./styles.css";
 import FilterGroup from "./FilterGroup";
-import updatesData from "./updatesData.json";
 
 function App() {
   const [activeTab, setActiveTab] = useState("pending");
@@ -9,19 +8,51 @@ function App() {
   const [selectedFilters, setSelectedFilters] = useState({
     brand: [],
     deviceType: [],
-    location: []
+    location: [],
+  });
+  const [updatesData, setUpdatesData] = useState({
+    criticalUpdates: [],
+    majorUpdates: [],
+    minorUpdates: [],
   });
 
-  const { criticalUpdates, majorUpdates, minorUpdates } = updatesData;
+  useEffect(() => {
+    const fetchUpdates = async () => {
+      try {
+        const response = await fetch("http://localhost:5222/devices");
+        const data = await response.json();
+        console.log("Fetched data:", data); // Debug log
+
+        // Separate updates into categories based on severity
+        const criticalUpdates = data.filter(
+          (item) => item.severity === "critical"
+        );
+        const majorUpdates = data.filter((item) => item.severity === "major");
+        const minorUpdates = data.filter((item) => item.severity === "minor");
+
+        console.log("Critical Updates:", criticalUpdates); // Debug log
+        console.log("Major Updates:", majorUpdates); // Debug log
+        console.log("Minor Updates:", minorUpdates); // Debug log
+
+        setUpdatesData({ criticalUpdates, majorUpdates, minorUpdates });
+      } catch (error) {
+        console.error("Error fetching updates:", error);
+      }
+    };
+
+    fetchUpdates();
+  }, []);
 
   // Filter updates based on search query and selected filter options
   const filterUpdates = (updates) => {
+    console.log("Filtering updates:", updates); // Debug log
     return updates.filter((item) => {
       // Search bar filtering (case-insensitive, checks brand, model, and description)
       if (searchQuery.trim() !== "") {
         const query = searchQuery.trim().toLowerCase();
         const matchesSearch =
-          (item.brand && item.brand.toLowerCase().includes(query)) ||
+          (item.manufacturer &&
+            item.manufacturer.toLowerCase().includes(query)) ||
           (item.model && item.model.toLowerCase().includes(query)) ||
           (item.description && item.description.toLowerCase().includes(query));
         if (!matchesSearch) {
@@ -29,15 +60,27 @@ function App() {
         }
       }
       // Filter by Brand
-      if (selectedFilters.brand.length > 0 && item.brand && !selectedFilters.brand.includes(item.brand)) {
+      if (
+        selectedFilters.brand.length > 0 &&
+        item.manufacturer &&
+        !selectedFilters.brand.includes(item.manufacturer)
+      ) {
         return false;
       }
       // Filter by Device Type
-      if (selectedFilters.deviceType.length > 0 && item.deviceType && !selectedFilters.deviceType.includes(item.deviceType)) {
+      if (
+        selectedFilters.deviceType.length > 0 &&
+        item.deviceType &&
+        !selectedFilters.deviceType.includes(item.deviceType)
+      ) {
         return false;
       }
       // Filter by Location
-      if (selectedFilters.location.length > 0 && item.location && !selectedFilters.location.includes(item.location)) {
+      if (
+        selectedFilters.location.length > 0 &&
+        item.location &&
+        !selectedFilters.location.includes(item.location)
+      ) {
         return false;
       }
       return true;
@@ -45,41 +88,44 @@ function App() {
   };
 
   // Renders a table for the provided updates data with a title header
-  const renderUpdatesTable = (title, data) => (
-    <div className="updates-table-container">
-      <h3>{title}</h3>
-      <table className="updates-table">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Brand</th>
-            <th>Model</th>
-            <th>Version No.</th>
-            <th>Description</th>
-            <th>Devices Affected</th>
-            <th>Size</th>
-            <th>Download</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((item, idx) => (
-            <tr key={idx}>
-              <td>{item.date}</td>
-              <td>{item.brand}</td>
-              <td>{item.model}</td>
-              <td>{item.version}</td>
-              <td>{item.description}</td>
-              <td>{item.devicesAffected}</td>
-              <td>{item.size}</td>
-              <td>
-                <button className="push-button">↓</button>
-              </td>
+  const renderUpdatesTable = (title, data) => {
+    console.log(`Rendering table for ${title}`, data); // Debug log
+    return (
+      <div className="updates-table-container">
+        <h3>{title}</h3>
+        <table className="updates-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Brand</th>
+              <th>Model</th>
+              <th>Version No.</th>
+              <th>Description</th>
+              <th>Devices Affected</th>
+              <th>Size</th>
+              <th>Download</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
+          </thead>
+          <tbody>
+            {data.map((item, idx) => (
+              <tr key={idx}>
+                <td>{item.date || "NA"}</td>
+                <td>{item.manufacturer}</td>
+                <td>{item.model}</td>
+                <td>{item.updateFirmwareVersion}</td>
+                <td>{item.description || "NA"}</td>
+                <td>{item.devicesAffected || "NA"}</td>
+                <td>{item.size || "NA"}</td>
+                <td>
+                  <button className="push-button">↓</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
 
   // Render updates content based on active tab and filtered data
   const renderTabContent = () => {
@@ -87,16 +133,22 @@ function App() {
       return (
         <>
           {renderUpdatesTable(
-            `Critical Updates (${filterUpdates(criticalUpdates).length} Pending)`,
-            filterUpdates(criticalUpdates)
+            `Critical Updates (${
+              filterUpdates(updatesData.criticalUpdates).length
+            } Pending)`,
+            filterUpdates(updatesData.criticalUpdates)
           )}
           {renderUpdatesTable(
-            `Major Updates (${filterUpdates(majorUpdates).length} Pending)`,
-            filterUpdates(majorUpdates)
+            `Major Updates (${
+              filterUpdates(updatesData.majorUpdates).length
+            } Pending)`,
+            filterUpdates(updatesData.majorUpdates)
           )}
           {renderUpdatesTable(
-            `Minor Updates (${filterUpdates(minorUpdates).length} Pending)`,
-            filterUpdates(minorUpdates)
+            `Minor Updates (${
+              filterUpdates(updatesData.minorUpdates).length
+            } Pending)`,
+            filterUpdates(updatesData.minorUpdates)
           )}
         </>
       );
@@ -160,7 +212,12 @@ function App() {
           <FilterGroup
             title="Location"
             filterKey="location"
-            items={["Boelter Hall", "Dining Halls", "Luskin Center", "The Hill"]}
+            items={[
+              "Boelter Hall",
+              "Dining Halls",
+              "Luskin Center",
+              "The Hill",
+            ]}
             selectedFilters={selectedFilters.location}
             onFilterChange={(selected) =>
               setSelectedFilters((prev) => ({ ...prev, location: selected }))
@@ -187,9 +244,9 @@ function App() {
             </div>
             {activeTab === "pending" && (
               <div className="push-all-buttons">
-                <button className="push-critical">Download Critical (48)</button>
-                <button className="push-major">Download Major (24)</button>
-                <button className="push-minor">Download Minor (152)</button>
+                <button className="push-critical">Download Critical</button>
+                <button className="push-major">Download Major</button>
+                <button className="push-minor">Download Minor</button>
                 <button className="push-all">Download All</button>
               </div>
             )}
