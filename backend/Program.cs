@@ -1,44 +1,61 @@
+using MongoDB.Driver;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddControllers();
 
+// Add CORS policy
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173") // Replace with your frontend's URL
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
+// Configure MongoDB connection
+var mongoConnectionString = builder.Configuration.GetConnectionString("MongoDB") 
+    ?? Environment.GetEnvironmentVariable("MONGO_CONNECTION_STRING");
+var mongoClient = new MongoClient(mongoConnectionString);
+var database = mongoClient.GetDatabase("AVHardwareDB");
+var devicesCollection = database.GetCollection<AVDevice>("Devices");
+
 var app = builder.Build();
 app.MapControllers();
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 
-// Configure the HTTP request pipeline.
+// Use CORS
+app.UseCors("AllowFrontend");
+
+// If in Development, map OpenAPI
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
 
-app.UseHttpsRedirection();
-
-var summaries = new[]
+// Endpoint for AV devices
+app.MapGet("/devices", async () =>
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+    var devices = await devicesCollection.Find(_ => true).ToListAsync();
+    return devices;
+}).WithName("GetDevices");
 
 app.Run();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
+record AVDevice(
+    MongoDB.Bson.ObjectId? _id,
+    string? date,
+    string? manufacturer, 
+    string? model, 
+    string? updateFirmwareVersion, 
+    string? description, 
+    int? devicesAffected, 
+    string? size,
+    string? severity,
+    string? deviceType,
+    string? location
+);

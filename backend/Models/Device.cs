@@ -7,14 +7,14 @@ public class Device
 {
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
-    public string Id { get; set; }
+    public string? Id { get; set; }
 
     [Required]
-    public string DeviceName { get; set; }
+    public string? DeviceName { get; set; }
 
     [Required]
-    public string DeviceVersion { get; set; }
+    public string? DeviceVersion { get; set; }
 
     [Required]
-    public DateTime LastUpdate { get; set; }
+    public DateTime? LastUpdate { get; set; }
 }

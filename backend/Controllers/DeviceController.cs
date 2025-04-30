@@ -9,11 +9,12 @@ public class DeviceController : ControllerBase
     private readonly IMongoCollection<Device> _devices;
 
     public DeviceController()
-    {
-        var connectionString = Environment.GetEnvironmentVariable("MONGO_CONNECTION_STRING");
-        var context = new MongoDBContext(connectionString, "AVHardwareDB"); // Use MongoDBContext
-        _devices = context.GetCollection<Device>("Devices");
-    }
+{
+    var connectionString = Environment.GetEnvironmentVariable("MONGO_CONNECTION_STRING") 
+        ?? "mongodb://localhost:27017"; // Default fallback for local development
+    var context = new MongoDBContext(connectionString, "AVHardwareDB");
+    _devices = context.GetCollection<Device>("Devices");
+}
 
     [HttpGet]
     public async Task<IActionResult> GetDevices()
